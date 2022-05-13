@@ -1,0 +1,61 @@
+<html lang="en">
+<head>
+  <title>Demo Camera Snapshots</title>
+
+  <script>
+    function reloadImage() {
+      let xhttp = new XMLHttpRequest(), waypoint = null;
+      xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+          waypoint = xhttp.responseText;
+          console.log(`Current waypoint: ${waypoint}`);
+          let img = document.getElementById(waypoint);
+          if (img) {
+            console.debug(`Updating snapshot/${waypoint}.jpg`);
+            img.src = img.src.replace(/\?.*/, '') + '?' + new Date().getTime();
+          }
+          setTimeout(reloadImage, 2000);
+        }
+      };
+      xhttp.open("GET", "waypoint", true);
+      xhttp.send();
+    }
+
+    reloadImage();
+  </script>
+
+  <style>
+    body {
+      background: #333;
+      color: #ddd;
+      font-family: "Open Sans", sans-serif, 'DejaVu Sans', Arial, Helvetica;
+    }
+    img {
+      border: 3px solid #777;
+      width: 480px;
+      height: 320px;
+    }
+    iframe {
+      border: 3px solid #777;
+      overflow: hidden;
+    }
+    .live {
+      margin: auto;
+    }
+    .snap {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="snaps">
+    <div class="snap"><h1>Drone Lab</h1><img id="a" src="snapshot/a.jpg" alt="Drone Lab"></div>
+    <div class="snap"><h1>Hallway</h1><img id="b" src="snapshot/b.jpg" alt="Hallway"></div>
+    <div class="snap"><h1>Elevators</h1><img id="c" src="snapshot/c.jpg" alt="Elevators"></div>
+  </div>
+  <div class="live">
+    <h1>Live View</h1>
+    <iframe src="https://cam.demo.aetherproject.net/camera/?id=Demo#embed" width="1280" height="720" scrolling="no"></iframe>
+  </div>
+</body>
+</html>

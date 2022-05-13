@@ -1,0 +1,14 @@
+{
+  "name": "camera-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Pan and tilt camera auto-swivel app",
+  "main": "camera-app.js",
+  "dependencies": {
+    "express": "^4.18.1",
+    "minimist": "^1.2.6"
+  },
+  "scripts": {
+    "start": "node camera-app.js"
+  }
+}
