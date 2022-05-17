@@ -42,8 +42,11 @@ class Swivel {
     }
 
     // Start taking snapshots with the specified frequency.
-    startSnapshots() {
+    startSnapshots(waypoint) {
+	// Move waypoint when starting snapshot on a new point
+        this.waypoint = waypoint;
         this.snapshotInterval = setInterval(this.takeSnapshot.bind(this), this.frequency);
+        console.log(`Started snapshot on waypoint ${waypoint}`);
     }
 
     // Stop taking snapshots.
@@ -54,6 +57,7 @@ class Swivel {
         if (this.snapshotInterval) {
             clearInterval(this.snapshotInterval);
         }
+        console.log(`Stopped snapshot on waypoint ${this.waypoint}`);
     }
 
     // Swivels the camera to the specified waypoint using REST API.
@@ -78,17 +82,23 @@ class Swivel {
             },
         };
 
-        let req = http.request(options, res => {});
+        let req = http.request(options, res => {
+            if (res.statusCode !== 200) {
+              console.error(`Did not get OK for a request to move waypoint to ${waypoint}. Code: ${res.statusCode}`);
+              res.resume();
+              return;
+            } else {
+              // Schedule restart of snapshot taking
+              console.log(`Moved waypoint to ${waypoint}`);
+              this.snapshotTimeout = setTimeout(this.startSnapshots.bind(this, waypoint), this.duration * 1.3);
+	    }
+	});
         req.on('error', error => {
             console.error(error);
         });
 
         req.write(data);
         req.end();
-        this.waypoint = waypoint;
-
-        // Schedule restart of snapshot taking
-        this.snapshotTimeout = setTimeout(this.startSnapshots.bind(this), this.duration * 1.3);
     }
 
     // Takes snapshot image of the camera using REST API.
@@ -104,6 +114,11 @@ class Swivel {
         };
 
         let req = http.request(options, res => {
+            if (res.statusCode !== 200) {
+              console.error(`Did not get an OK for a request to take snapshot on ${this.waypoint}. Code: ${res.statusCode}`);
+              res.resume();
+              return;
+            }
             let data = new Stream();
             res.on('data', d => {
                 data.push(d);
