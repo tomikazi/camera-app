@@ -13,9 +13,9 @@ class Swivel {
         this.camera = options.camera;
         this.waypoints = options.waypoints || ['c', 'a', 'b'];
         this.frequency = options.frequency || 2500; // millis
-        this.duration = options.duration || 4000; // millis
-        this.minStay = options.minStay || 20; // secs
-        this.maxStay = options.maxStay || 40; // secs
+        this.duration = options.duration || 2000; // millis
+        this.minStay = options.minStay || 10; // secs
+        this.maxStay = options.maxStay || 20; // secs
         this.snapshots = {};
         this.count = 0;
 
@@ -43,7 +43,7 @@ class Swivel {
 
     // Start taking snapshots with the specified frequency.
     startSnapshots(waypoint) {
-	// Move waypoint when starting snapshot on a new point
+        // Move waypoint when starting snapshot on a new point
         this.waypoint = waypoint;
         this.snapshotInterval = setInterval(this.takeSnapshot.bind(this), this.frequency);
         console.log(`Started snapshot on waypoint ${waypoint}`);
@@ -84,15 +84,14 @@ class Swivel {
 
         let req = http.request(options, res => {
             if (res.statusCode !== 200) {
-              console.error(`Did not get OK for a request to move waypoint to ${waypoint}. Code: ${res.statusCode}`);
-              res.resume();
-              return;
+                console.error(`Did not get OK for a request to move waypoint to ${waypoint}. Code: ${res.statusCode}`);
+                res.resume();
             } else {
-              // Schedule restart of snapshot taking
-              console.log(`Moved waypoint to ${waypoint}`);
-              this.snapshotTimeout = setTimeout(this.startSnapshots.bind(this, waypoint), this.duration * 1.3);
-	    }
-	});
+                // Schedule restart of snapshot taking
+                console.log(`Moved waypoint to ${waypoint}`);
+                this.snapshotTimeout = setTimeout(this.startSnapshots.bind(this, waypoint), this.duration * 1.4);
+            }
+        });
         req.on('error', error => {
             console.error(error);
         });
@@ -115,9 +114,9 @@ class Swivel {
 
         let req = http.request(options, res => {
             if (res.statusCode !== 200) {
-              console.error(`Did not get an OK for a request to take snapshot on ${this.waypoint}. Code: ${res.statusCode}`);
-              res.resume();
-              return;
+                console.error(`Did not get an OK for a request to take snapshot on ${this.waypoint}. Code: ${res.statusCode}`);
+                res.resume();
+                return;
             }
             let data = new Stream();
             res.on('data', d => {

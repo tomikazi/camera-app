@@ -2,26 +2,36 @@
 <head>
   <title>Demo Camera Snapshots</title>
 
-  <script>
-    function reloadImage() {
-      let xhttp = new XMLHttpRequest(), waypoint = null;
-      xhttp.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-          waypoint = xhttp.responseText;
-          console.log(`Current waypoint: ${waypoint}`);
-          let img = document.getElementById(waypoint);
-          if (img) {
-            console.debug(`Updating snapshot/${waypoint}.jpg`);
-            img.src = img.src.replace(/\?.*/, '') + '?' + new Date().getTime();
-          }
-          setTimeout(reloadImage, 2000);
-        }
-      };
-      xhttp.open("GET", "waypoint", true);
-      xhttp.send();
-    }
+  <script type="text/javascript" src="jquery-1.12.4.min.js"></script>
 
-    reloadImage();
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function () {
+      function reloadImage() {
+        let xhttp = new XMLHttpRequest(), waypoint = null;
+        xhttp.onreadystatechange = function () {
+          if (this.readyState === 4 && this.status === 200) {
+            markWaypoint(xhttp.responseText);
+            setTimeout(reloadImage, 2000);
+          }
+        };
+        xhttp.open("GET", "waypoint", true);
+        xhttp.send();
+      }
+
+      function markWaypoint(waypoint) {
+        $('.snap img').removeClass('active');
+        console.log(`Current waypoint: ${waypoint}`);
+        let img = $('#' + waypoint);
+        if (img) {
+          let date = new Date();
+          console.info(`Updating snapshot/${waypoint}.jpg at ${date.toLocaleTimeString()}`);
+          img.attr('src', img.attr('src').replace(/\?.*/, '') + '?' + date.getTime());
+          img.addClass('active');
+          $(`#${waypoint}-ts`).html(date.toLocaleTimeString());
+        }
+      }
+      reloadImage();
+    });
   </script>
 
   <style>
@@ -35,27 +45,36 @@
       width: 480px;
       height: 320px;
     }
+    .snap {
+      display: inline-block;
+    }
+    .active {
+      border: 4px solid #f33;
+    }
+    h1 span {
+      font-size: 0.6em;
+      font-style: italic;
+      font-weight: normal;
+      display: inline-block;
+      width: 300px;
+      text-align: right;
+    }
     iframe {
       border: 3px solid #777;
       overflow: hidden;
     }
-    .live {
-      margin: auto;
-    }
-    .snap {
-      display: inline-block;
-    }
   </style>
 </head>
 <body>
-  <div class="snaps">
-    <div class="snap"><h1>Drone Lab</h1><img id="a" src="snapshot/a.jpg" alt="Drone Lab"></div>
-    <div class="snap"><h1>Hallway</h1><img id="b" src="snapshot/b.jpg" alt="Hallway"></div>
-    <div class="snap"><h1>Elevators</h1><img id="c" src="snapshot/c.jpg" alt="Elevators"></div>
+  <div id="snaps">
+    <div class="snap"><h1>Drone Lab <span id="a-ts"></span></h1><img class="active" id="a" src="snapshot/a.jpg" alt="Drone Lab"></div>
+    <div class="snap"><h1>Hallway <span id="b-ts"></span></h1><img id="b" src="snapshot/b.jpg" alt="Hallway"></div>
+    <div class="snap"><h1>Elevators <span id="c-ts"></span></h1><img id="c" src="snapshot/c.jpg" alt="Elevators"></div>
   </div>
-  <div class="live">
+  <div id="live">
     <h1>Live View</h1>
-    <iframe src="https://cam.demo.aetherproject.net/camera/?id=Demo#embed" width="1280" height="720" scrolling="no"></iframe>
+<!--    <iframe src="https://cam.demo.aetherproject.net/camera/?id=Demo#embed" width="1280" height="720" scrolling="no"></iframe>-->
+    <iframe src="https://vachuska.com/camera/?id=Extra#embed" width="1280" height="720" scrolling="no"></iframe>
   </div>
 </body>
 </html>
